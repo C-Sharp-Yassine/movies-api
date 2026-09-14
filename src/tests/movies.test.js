@@ -74,3 +74,23 @@ test("PUT /api/movies/:id uppdatera en film", async () => {
   assert.equal(response.body.title, "The Matrix Reloaded");
   assert.equal(response.body.year, 2003);
 });
+
+test("DELETE /api/movies/:id radera en film", async () => {
+  const result = db
+    .prepare(
+      "INSERT INTO movies (title, genre, year, director) VALUES (?, ?, ?, ?)",
+    )
+    .run("The Matrix", "Action", 1999, "Lana Wachowski");
+
+  const response = await request(app).delete(
+    `/api/movies/${result.lastInsertRowid}`,
+  );
+
+  assert.equal(response.status, 204);
+
+  const movies = db
+    .prepare("SELECT * FROM movies WHERE id = ?")
+    .get(result.lastInsertRowid);
+
+  assert.equal(movies, undefined);
+});
