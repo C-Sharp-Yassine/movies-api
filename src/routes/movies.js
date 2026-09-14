@@ -38,4 +38,29 @@ router.get("/", (req, res) => {
   }
 });
 
+router.put("/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, genre, year, director } = req.body;
+
+    const result = db
+      .prepare(
+        "UPDATE movies SET title = ?, genre = ?, year = ?, director = ? WHERE id = ?",
+      )
+      .run(title, genre, year, director, id);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
+    const movie = db
+      .prepare("SELECT * FROM movies WHERE id = ?")
+      .get(id);
+
+    res.status(200).json(movie);
+  } catch (error) {
+    res.status(500).json({ message: "Database error" });
+  }
+});
+
 export default router;
