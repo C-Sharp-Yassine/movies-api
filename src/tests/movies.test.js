@@ -53,3 +53,24 @@ test("GET /api/movies kan filtrera på genre", async () => {
   assert.equal(response.body.length, 1);
   assert.equal(response.body[0].title, "The Matrix");
 });
+
+test("PUT /api/movies/:id uppdatera en film", async () => {
+  const result = db
+    .prepare(
+      "INSERT INTO movies (title, genre, year, director) VALUES (?, ?, ?, ?)",
+    )
+    .run("The Matrix", "Action", 1999, "Lana Wachowski");
+
+  const response = await request(app)
+    .put(`/api/movies/${result.lastInsertRowid}`)
+    .send({
+      title: "The Matrix Reloaded",
+      genre: "Action",
+      year: 2003,
+      director: "Lana Wachowski",
+    });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.title, "The Matrix Reloaded");
+  assert.equal(response.body.year, 2003);
+});
