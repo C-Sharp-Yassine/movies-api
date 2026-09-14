@@ -1,7 +1,12 @@
-import test from "node:test";
+import test, { beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import request from "supertest";
 import app from "../app.js";
+import db from "../db/database.js";
+
+beforeEach(() => {
+  db.prepare("DELETE FROM movies").run();
+});
 
 test("POST /api/movies skapar en ny film", async () => {
   const movie = {
@@ -11,13 +16,24 @@ test("POST /api/movies skapar en ny film", async () => {
     year: 1999,
   };
 
-  const response = await request(app)
-    .post("/api/movies")
-    .send(movie)
+  const response = await request(app).post("/api/movies").send(movie);
 
   assert.equal(response.status, 201);
   assert.equal(response.body.title, movie.title);
   assert.equal(response.body.genre, movie.genre);
   assert.equal(response.body.year, movie.year);
   assert.equal(response.body.director, movie.director);
+});
+
+test("GET /api/movies hämtar alla filmer", async () => {
+  db.prepare(
+    "INSERT INTO movies (title, genre, year, director) VALUES (?, ?, ?, ?)",
+  ).run("The Matrix", "Action", 1999, "Lana Wachowski");
+
+  const response = await request(app).get("/api/movies");
+
+  assert.equal(response.status, 200);
+  assert.ok(Array.isArray(response.body));
+  assert.equal(response.body.length, 1);
+  assert.equal(response.body[0].title, "The Matrix");
 });
