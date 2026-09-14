@@ -37,3 +37,15 @@ test("GET /api/movies hämtar alla filmer", async () => {
   assert.equal(response.body.length, 1);
   assert.equal(response.body[0].title, "The Matrix");
 });
+
+test("GET /api/movies kan filtrera på genre", async () => {
+  db.prepare(
+    "INSERT INTO movies (title, genre, year, director) VALUES (?, ?, ?, ?)",
+  ).run("The Matrix", "Action", 1999, "Lana Wachowski");
+
+  const response = await request(app).get("/api/movies?genre=Action");
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.length, 1);
+  assert.equal(response.body[0].title, "The Matrix");
+});
