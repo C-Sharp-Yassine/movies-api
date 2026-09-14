@@ -43,6 +43,10 @@ test("GET /api/movies kan filtrera på genre", async () => {
     "INSERT INTO movies (title, genre, year, director) VALUES (?, ?, ?, ?)",
   ).run("The Matrix", "Action", 1999, "Lana Wachowski");
 
+  db.prepare(
+    "INSERT INTO movies (title, genre, year, director) VALUES (?, ?, ?, ?)",
+  ).run("Gladiator", "Drama", 2000, "Ridley Scott");
+
   const response = await request(app).get("/api/movies?genre=Action");
 
   assert.equal(response.status, 200);
