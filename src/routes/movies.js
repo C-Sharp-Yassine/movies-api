@@ -23,7 +23,14 @@ router.post("/", (req, res) => {
 
 router.get("/", (req, res) => {
   try {
-    const movies = db.prepare("SELECT * FROM movies").all();
+    const { genre } = req.query;
+
+    let movies;
+    if (genre) {
+      movies = db.prepare("SELECT * FROM movies WHERE genre = ?").all(genre);
+    } else {
+      movies = db.prepare("SELECT * FROM movies").all();
+    }
 
     res.status(200).json(movies);
   } catch (error) {
