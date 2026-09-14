@@ -63,4 +63,20 @@ router.put("/:id", (req, res) => {
   }
 });
 
+router.delete("/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = db.prepare("DELETE FROM movies WHERE id = ?")
+    .run(id);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
+    res.status(204).send();
+    } catch (error) {
+    res.status(500).json({ message: "Database error" });
+  }
+});
+
 export default router;
