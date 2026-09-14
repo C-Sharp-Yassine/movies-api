@@ -21,4 +21,14 @@ router.post("/", (req, res) => {
   }
 });
 
+router.get("/", (req, res) => {
+  try {
+    const movies = db.prepare("SELECT * FROM movies").all();
+
+    res.status(200).json(movies);
+  } catch (error) {
+    res.status(500).json({ message: "Database error" });
+  }
+});
+
 export default router;
